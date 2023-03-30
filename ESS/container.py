@@ -2,25 +2,30 @@ import itertools
 import copy
 from ESS import entity
 
+
 class ContainerError(Exception):
     def __init__(self, cause):
-        Exception.__init__(self)
+        super().__init__(cause)
         self.cause = cause
 
     def __str__(self):
         return self.cause
 
+
 class NotExistentItemError(ContainerError):
     pass
+
+
 class DuplicateItemError(ContainerError):
     pass
+
+
 class EmptyContainerError(ContainerError):
     def __str__(self):
         return "Container is empty"
 
 
-class FactContainer(object):
-
+class FactContainer:
     def __init__(self):
         self._facts = {}
 
@@ -46,7 +51,7 @@ class FactContainer(object):
     def __eq__(self, other):
         return self._facts == other._facts
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._facts)
 
     def get_facts_names(self):
@@ -76,7 +81,6 @@ class FactContainer(object):
 
 
 class GoalContainer(FactContainer):
-
     def __str__(self):
         l = ['Goal:']
         for fact in self._facts.values():
@@ -95,7 +99,7 @@ class RuleContainer(object):
         return itertools.chain(iter(self._rules), iter(self.unbinded))
 
     def __len__(self):
-        return len(self._rules)+len(self.unbinded)
+        return len(self._rules) + len(self.unbinded)
 
     def __contains__(self, rule):
         return rule in self._rules
@@ -129,7 +133,7 @@ class RuleContainer(object):
     def remove(self, rule_name):
         rule = self._placeholder.get(rule_name, None) or self.unbinded._placeholder.get(rule_name, None)
         if not rule:
-            raise NotExistentItemError(rule.name)
+            raise NotExistentItemError(rule_name)
         if rule.is_binded():
             self._rules.remove(rule)
             del self._placeholder[rule.name]
@@ -175,4 +179,3 @@ class _UnbindedRuleContainer(RuleContainer):
     def remove(self, rule):
         self._rules.remove(rule)
         del self._placeholder[rule.name]
-
